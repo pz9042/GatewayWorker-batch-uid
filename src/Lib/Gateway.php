@@ -127,7 +127,7 @@ class Gateway
         $address_connection_array = static::clientIdArrayToAddressArray($exclude_client_id);
 
         // 如果有businessWorker实例，说明运行在workerman环境中，通过businessWorker中的长连接发送数据
-        if (static::$businessWorker) {
+        if (static::$businessWorker && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             foreach (static::$businessWorker->gatewayConnections as $address => $gateway_connection) {
                 $gateway_data['ext_data'] = isset($address_connection_array[$address]) ?
                     json_encode(array('exclude'=> $address_connection_array[$address])) : '';
@@ -195,7 +195,7 @@ class Gateway
             return 0;
         }
         $address      = long2ip($address_data['local_ip']) . ":{$address_data['local_port']}";
-        if (isset(static::$businessWorker)) {
+        if (isset(static::$businessWorker)  && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             if (!isset(static::$businessWorker->gatewayConnections[$address])) {
                 return 0;
             }
@@ -771,7 +771,8 @@ class Gateway
      */
     protected static function getAllGatewayAddress()
     {
-        if (isset(static::$businessWorker)) {
+        
+        if (isset(static::$businessWorker) && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             $addresses = static::$businessWorker->getAllGatewayAddresses();
             if (empty($addresses)) {
                 throw new Exception('businessWorker::getAllGatewayAddresses return empty');
@@ -1052,7 +1053,7 @@ class Gateway
 
         $address_connection_array = static::clientIdArrayToAddressArray($exclude_client_id);
         // 如果有businessWorker实例，说明运行在workerman环境中，通过businessWorker中的长连接发送数据
-        if (static::$businessWorker) {
+        if (static::$businessWorker && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             foreach (static::$businessWorker->gatewayConnections as $address => $gateway_connection) {
                 $gateway_data['ext_data'] = isset($address_connection_array[$address]) ?
                     json_encode(array('group'=> $group, 'exclude'=> $address_connection_array[$address])) :
@@ -1131,7 +1132,7 @@ class Gateway
             return false;
         }
         $address      = long2ip($address_data['local_ip']) . ":{$address_data['local_port']}";
-        if (isset(static::$businessWorker)) {
+        if (isset(static::$businessWorker) && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             if (!isset(static::$businessWorker->gatewayConnections[$address])) {
                 return null;
             }
@@ -1258,7 +1259,7 @@ class Gateway
     protected static function sendBufferToGateway($address, $gateway_buffer)
     {
         // 有$businessWorker说明是workerman环境，使用$businessWorker发送数据
-        if (static::$businessWorker) {
+        if (static::$businessWorker && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             if (!isset(static::$businessWorker->gatewayConnections[$address])) {
                 return false;
             }
@@ -1282,7 +1283,7 @@ class Gateway
     {
         $buffer = GatewayProtocol::encode($gateway_data);
         // 如果有businessWorker实例，说明运行在workerman环境中，通过businessWorker中的长连接发送数据
-        if (static::$businessWorker) {
+        if (static::$businessWorker && static::$businessWorker ->registerAddress == static::$registerAddress ) {
             foreach (static::$businessWorker->gatewayConnections as $gateway_connection) {
                 /** @var TcpConnection $gateway_connection */
                 $gateway_connection->send($buffer, true);
